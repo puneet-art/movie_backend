@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  typesense:
+    image: typesense/typesense:0.25.2
+    container_name: movie_typesense
+    restart: always
+    ports:
+      - "8108:8108"
+    environment:
+      - TYPESENSE_API_KEY=xyz
+      - TYPESENSE_DATA_DIR=/data
+    volumes:
+      - typesense_data:/data
+
+  redis:
+    image: redis:alpine
+    container_name: movie_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  typesense_data:

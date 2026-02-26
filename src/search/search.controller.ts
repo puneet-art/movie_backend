@@ -19,13 +19,13 @@ export class SearchController {
     @ApiOperation({ summary: 'Search films by title' })
     @ApiResponse({ status: 200, description: 'List of matching films.' })
     async searchFilms(@Query(ValidationPipe) query: SearchQueryDto) {
-        return this.searchService.searchFilms(query.q);
+        return this.searchService.searchFilms(query.q, query.limit, query.page);
     }
 
     @Get('actors')
     @ApiOperation({ summary: 'Search actors by name' })
     @ApiResponse({ status: 200, description: 'List of matching actors.' })
     async searchActors(@Query(ValidationPipe) query: SearchQueryDto) {
-        return this.searchService.searchActors(query.q);
+        return this.searchService.searchActors(query.q, query.limit, query.page);
     }
 }
