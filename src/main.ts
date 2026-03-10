@@ -11,7 +11,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Movie Search API')
-    .setDescription('The API for managing and searching Films and Actors using Typesense')
+    .setDescription(
+      'The API for managing and searching Films and Actors using Typesense',
+    )
     .setVersion('0.2.0')
     .addTag('search')
     .build();
