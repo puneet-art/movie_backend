@@ -39,4 +39,5 @@ docker_info.json
 push_output.txt
 lint_errors.txt
 error.log
+README.md
 dist
