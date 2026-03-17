@@ -33,3 +33,11 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 node_modules
+.env
+*.info
+docker_info.json
+push_output.txt
+lint_errors.txt
+error.log
+README.md
+dist

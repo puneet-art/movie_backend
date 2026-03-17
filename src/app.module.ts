@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SearchModule } from './search/search.module';
+import { SearchModule } from './features/search/search.module';
 import { TypesenseModule } from './typesense/typesense.module';
-import { WeatherModule } from './weather/weather.module';
+import { WeatherModule } from './features/weather/weather.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { TimingMiddleware } from './common/middleware/timing.middleware';
 
 @Module({
   imports: [
@@ -20,4 +21,8 @@ import { PrismaModule } from './prisma/prisma.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(TimingMiddleware).forRoutes('*');
+  }
+}

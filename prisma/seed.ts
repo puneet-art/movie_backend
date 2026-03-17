@@ -10,6 +10,7 @@ async function main() {
         data: {
             first_name: 'Tom',
             last_name: 'Hanks',
+            location: 'Concord, CA, USA',
         },
     });
 
@@ -17,6 +18,7 @@ async function main() {
         data: {
             first_name: 'Leonardo',
             last_name: 'DiCaprio',
+            location: 'Los Angeles, CA, USA',
         },
     });
 
@@ -24,6 +26,7 @@ async function main() {
         data: {
             first_name: 'Morgan',
             last_name: 'Freeman',
+            location: 'Memphis, TN, USA',
         },
     });
 
