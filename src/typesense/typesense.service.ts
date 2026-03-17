@@ -35,11 +35,11 @@ export class TypesenseService implements OnModuleInit {
 
     // ===== FILMS COLLECTION =====
     const filmsCollection = collections.find((c: any) => c.name === 'films');
-    const hasGenresField = filmsCollection?.fields?.some(
-      (f: any) => f.name === 'genres',
+    const hasActorsField = filmsCollection?.fields?.some(
+      (f: any) => f.name === 'actors',
     );
 
-    if (!filmsCollection || !hasGenresField) {
+    if (!filmsCollection || !hasActorsField) {
       if (filmsCollection) {
         this.logger.log('Updating films collection schema...');
         await this.client.collections('films').delete();
@@ -56,14 +56,36 @@ export class TypesenseService implements OnModuleInit {
           { name: 'description', type: 'string', optional: true },
           { name: 'release_year', type: 'int32', optional: true },
           { name: 'genres', type: 'string[]', facet: true, optional: true },
+          { name: 'actors', type: 'string[]', facet: true, optional: true },
         ],
         default_sorting_field: 'film_id',
       });
     }
 
     // ===== ACTORS COLLECTION =====
-    if (!existingNames.includes('actors')) {
-      this.logger.log('Creating actors collection...');
+    const actorsCollection = collections.find((c: any) => c.name === 'actors');
+    const hasFilmsField = actorsCollection?.fields?.some(
+      (f: any) => f.name === 'films',
+    );
+    const hasLocationField = actorsCollection?.fields?.some(
+      (f: any) => f.name === 'location',
+    );
+    const hasBioField = actorsCollection?.fields?.some(
+      (f: any) => f.name === 'bio',
+    );
+
+    if (
+      !actorsCollection ||
+      !hasFilmsField ||
+      !hasLocationField ||
+      !hasBioField
+    ) {
+      if (actorsCollection) {
+        this.logger.log('Updating actors collection schema...');
+        await this.client.collections('actors').delete();
+      } else {
+        this.logger.log('Creating actors collection...');
+      }
 
       await this.client.collections().create({
         name: 'actors',
@@ -72,6 +94,9 @@ export class TypesenseService implements OnModuleInit {
           { name: 'actor_id', type: 'int32' },
           { name: 'first_name', type: 'string' },
           { name: 'last_name', type: 'string' },
+          { name: 'bio', type: 'string', optional: true },
+          { name: 'location', type: 'string', optional: true },
+          { name: 'films', type: 'string[]', facet: true, optional: true },
         ],
         default_sorting_field: 'actor_id',
       });
@@ -88,6 +113,7 @@ export class TypesenseService implements OnModuleInit {
       description: film.description,
       release_year: film.release_year ?? 0,
       genres: film.genres || [],
+      actors: film.actors || [],
     }));
 
     await this.client
@@ -106,6 +132,9 @@ export class TypesenseService implements OnModuleInit {
       actor_id: Number(actor.actor_id),
       first_name: actor.first_name,
       last_name: actor.last_name,
+      bio: actor.bio || '',
+      location: actor.location || '',
+      films: actor.films || [],
     }));
 
     await this.client

@@ -37,6 +37,10 @@ interface ForecastData {
 export class WeatherService {
   private apiKey: string;
   private baseUrl = 'https://api.openweathermap.org/data/2.5';
+  private readonly CACHE_TTL = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
+  
+  // In-built memory cache
+  private cache = new Map<string, { data: any; expiry: number }>();
 
   constructor(private configService: ConfigService) {
     this.apiKey = this.configService.get<string>('OPENWEATHERMAP_API_KEY', '');
@@ -50,6 +54,13 @@ export class WeatherService {
       );
     }
 
+    const cacheKey = `weather_current_${city.toLowerCase()}`;
+    const cachedItem = this.cache.get(cacheKey);
+    
+    if (cachedItem && Date.now() < cachedItem.expiry) {
+      return cachedItem.data;
+    }
+
     try {
       const data = await ky
         .get(`${this.baseUrl}/weather`, {
@@ -61,13 +72,20 @@ export class WeatherService {
         })
         .json<WeatherData>();
 
-      return {
+      const result = {
         city: data.name,
         temperature: data.main.temp,
         description: data.weather[0]?.description || '',
         humidity: data.main.humidity,
         windSpeed: data.wind.speed,
       };
+
+      this.cache.set(cacheKey, {
+        data: result,
+        expiry: Date.now() + this.CACHE_TTL,
+      });
+
+      return result;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HttpException(
@@ -83,6 +101,13 @@ export class WeatherService {
         'OpenWeatherMap API Key not configured',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+
+    const cacheKey = `weather_forecast_${city.toLowerCase()}`;
+    const cachedItem = this.cache.get(cacheKey);
+    
+    if (cachedItem && Date.now() < cachedItem.expiry) {
+      return cachedItem.data;
     }
 
     try {
@@ -104,10 +129,17 @@ export class WeatherService {
           description: item.weather[0]?.description || '',
         }));
 
-      return {
+      const result = {
         city: data.city.name,
         forecast,
       };
+
+      this.cache.set(cacheKey, {
+        data: result,
+        expiry: Date.now() + this.CACHE_TTL,
+      });
+
+      return result;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HttpException(

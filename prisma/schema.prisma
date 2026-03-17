@@ -8,22 +8,34 @@ datasource db {
 }
 
 model Actor {
-  actor_id    Int      @id @default(autoincrement())
-  first_name  String   @db.VarChar(45)
-  last_name   String   @db.VarChar(45)
-  last_update DateTime @default(now()) @updatedAt
+  actor_id    Int          @id @default(autoincrement())
+  first_name  String       @db.VarChar(45)
+  last_name   String       @db.VarChar(45)
+  last_update DateTime     @default(now()) @updatedAt
+  location    String?      @db.VarChar(100)
+  bio         String?      @db.Text
+  film_actor  film_actor[]
 
   @@index([last_name], map: "idx_actor_last_name")
   @@map("actor")
 }
 
 model Film {
-  film_id       Int             @id @default(autoincrement())
-  title         String          @db.VarChar(255)
-  description   String?
-  release_year  Int?
-  last_update   DateTime        @default(now()) @updatedAt
-  film_category film_category[]
+  film_id          Int                     @id @default(autoincrement())
+  title            String                  @db.VarChar(255)
+  description      String?
+  release_year     Int?
+  language_id      Int                     @db.SmallInt
+  rental_duration  Int                     @default(3) @db.SmallInt
+  rental_rate      Decimal                 @default(4.99) @db.Decimal(4, 2)
+  length           Int?                    @db.SmallInt
+  replacement_cost Decimal                 @default(19.99) @db.Decimal(5, 2)
+  rating           mpaa_rating?            @default(G)
+  last_update      DateTime                @default(now()) @updatedAt @db.Timestamp(6)
+  special_features String[]
+  fulltext         Unsupported("tsvector")
+  film_actor       film_actor[]
+  film_category    film_category[]
 
   @@index([title], map: "idx_title")
   @@map("film")
@@ -95,6 +107,8 @@ model film_actor {
   actor_id    Int      @db.SmallInt
   film_id     Int      @db.SmallInt
   last_update DateTime @default(now()) @db.Timestamp(6)
+  actor       Actor    @relation(fields: [actor_id], references: [actor_id])
+  film        Film     @relation(fields: [film_id], references: [film_id])
 
   @@id([actor_id, film_id])
   @@index([film_id], map: "idx_fk_film_id")
@@ -184,6 +198,14 @@ model store {
   last_update      DateTime @default(now()) @db.Timestamp(6)
   address          address  @relation(fields: [address_id], references: [address_id])
   staff            staff    @relation(fields: [manager_staff_id], references: [staff_id])
+}
+
+model weather {
+  id          Int    @id(map: "PK_af9937471586e6798a5e4865f2d") @default(autoincrement())
+  city        String @db.VarChar
+  temperature Int
+  type        String @db.VarChar
+  date        String @db.VarChar
 }
 
 enum mpaa_rating {
