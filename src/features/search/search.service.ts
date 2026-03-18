@@ -83,7 +83,8 @@ export class SearchService {
   async searchFilms(q?: string, limit: number = 20, page: number = 1, genre?: string, year?: number, sortBy?: string) {
     this.logger.log(`searchFilms params: q="${q}", limit=${limit}, page=${page}, genre="${genre}", year=${year}, sortBy="${sortBy}"`);
     const query = q || '*';
-    const perPage = limit;
+    const perPage = Number(limit) || 20;
+    const currentPage = Number(page) || 1;
 
     const filters: string[] = [];
     if (genre) filters.push(`genres:=${genre}`);
@@ -94,7 +95,7 @@ export class SearchService {
     if (sortBy === 'latest') sort_by = 'release_year:desc';
     else if (sortBy === 'oldest') sort_by = 'release_year:asc';
 
-    this.logger.log(`Typesense search (films): q="${query}", per_page=${perPage}, page=${page}`);
+    this.logger.log(`Typesense search (films): q="${query}", per_page=${perPage}, page=${currentPage}`);
     const result = (await this.typesenseService.client
       .collections('films')
       .documents()
@@ -104,7 +105,7 @@ export class SearchService {
         filter_by: filterBy,
         sort_by: sort_by,
         per_page: perPage,
-        page: page,
+        page: currentPage,
       })) as any;
     
     this.logger.log(`Raw Typesense results hits length: ${result.hits?.length || 0}`);
@@ -116,11 +117,11 @@ export class SearchService {
       data: result.hits?.map((h: any) => h.document) || [],
       meta: {
         total,
-        page,
+        page: currentPage,
         per_page: perPage,
         total_pages: totalPages,
-        has_next_page: page < totalPages,
-        has_previous_page: page > 1,
+        has_next_page: currentPage < totalPages,
+        has_previous_page: currentPage > 1,
       }
     };
 
@@ -130,9 +131,10 @@ export class SearchService {
 
   async searchActors(q?: string, limit: number = 20, page: number = 1) {
     const query = q || '*';
-    const perPage = limit;
+    const perPage = Number(limit) || 20;
+    const currentPage = Number(page) || 1;
 
-    this.logger.log(`Typesense search (actors): q="${query}", per_page=${perPage}, page=${page}`);
+    this.logger.log(`Typesense search (actors): q="${query}", per_page=${perPage}, page=${currentPage}`);
     const result = (await this.typesenseService.client
       .collections('actors')
       .documents()
@@ -140,7 +142,7 @@ export class SearchService {
         q: query,
         query_by: 'first_name,last_name,bio,location,films',
         per_page: perPage,
-        page: page,
+        page: currentPage,
       })) as any;
 
     const total = result.found || 0;
@@ -150,17 +152,19 @@ export class SearchService {
       data: result.hits?.map((h: any) => h.document) || [],
       meta: {
         total,
-        page,
+        page: currentPage,
         per_page: perPage,
         total_pages: totalPages,
-        has_next_page: page < totalPages,
-        has_previous_page: page > 1,
+        has_next_page: currentPage < totalPages,
+        has_previous_page: currentPage > 1,
       }
     };
   }
 
   async searchAll(q?: string, limit: number = 20, page: number = 1, genre?: string, year?: number, sortBy?: string) {
     const query = q || '*';
+    const perPage = Number(limit) || 20;
+    const currentPage = Number(page) || 1;
 
     const filters: string[] = [];
     if (genre) filters.push(`genres:=${genre}`);
@@ -189,11 +193,11 @@ export class SearchService {
     };
 
     const commonParams = {
-      per_page: limit,
-      page: page,
+      per_page: perPage,
+      page: currentPage,
     };
 
-    this.logger.log(`Typesense multiSearch: q="${query}", limit=${limit}, page=${page}, genre="${genre}", year=${year}`);
+    this.logger.log(`Typesense multiSearch: q="${query}", limit=${perPage}, page=${currentPage}, genre="${genre}", year=${year}`);
 
     const result: any = await this.typesenseService.client.multiSearch.perform(
       searchRequests,
@@ -204,32 +208,32 @@ export class SearchService {
     const actorsResult = result.results[1];
 
     const filmsTotal = filmsResult.found || 0;
-    const filmsTotalPages = Math.ceil(filmsTotal / limit);
+    const filmsTotalPages = Math.ceil(filmsTotal / perPage);
 
     const actorsTotal = actorsResult.found || 0;
-    const actorsTotalPages = Math.ceil(actorsTotal / limit);
+    const actorsTotalPages = Math.ceil(actorsTotal / perPage);
 
     return {
       films: {
         data: filmsResult.hits?.map((h: any) => h.document) || [],
         meta: {
           total: filmsTotal,
-          page,
-          per_page: limit,
+          page: currentPage,
+          per_page: perPage,
           total_pages: filmsTotalPages,
-          has_next_page: page < filmsTotalPages,
-          has_previous_page: page > 1,
+          has_next_page: currentPage < filmsTotalPages,
+          has_previous_page: currentPage > 1,
         }
       },
       actors: {
         data: actorsResult.hits?.map((h: any) => h.document) || [],
         meta: {
           total: actorsTotal,
-          page,
-          per_page: limit,
+          page: currentPage,
+          per_page: perPage,
           total_pages: actorsTotalPages,
-          has_next_page: page < actorsTotalPages,
-          has_previous_page: page > 1,
+          has_next_page: currentPage < actorsTotalPages,
+          has_previous_page: currentPage > 1,
         }
       },
     };

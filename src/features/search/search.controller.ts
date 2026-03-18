@@ -11,7 +11,7 @@ export class SearchController {
     @Get('films')
     @ApiOperation({ summary: 'Search films by title' })
     @ApiResponse({ status: 200, description: 'List of matching films.' })
-    async searchFilms(@Query(ValidationPipe) query: SearchQueryDto) {
+    async searchFilms(@Query() query: SearchQueryDto) {
         // Explicitly use page, limit, and q from query object
         return this.searchService.searchFilms(query.q, query.limit, query.page, query.genre, query.year, query.sortBy);
     }
@@ -26,14 +26,16 @@ export class SearchController {
     @Get('actors')
     @ApiOperation({ summary: 'Search actors by name' })
     @ApiResponse({ status: 200, description: 'List of matching actors.' })
-    async searchActors(@Query(ValidationPipe) query: SearchQueryDto) {
+    async searchActors(@Query() query: SearchQueryDto) {
+        console.log('[API Controller] /search/actors query:', JSON.stringify(query));
         return this.searchService.searchActors(query.q, query.limit, query.page);
     }
 
     @Get('all')
     @ApiOperation({ summary: 'Global search for films and actors simultaneously' })
     @ApiResponse({ status: 200, description: 'Combined results for films and actors.' })
-    async searchAll(@Query(ValidationPipe) query: SearchQueryDto) {
+    async searchAll(@Query() query: SearchQueryDto) {
+        console.log('[API Controller] /search/all query:', JSON.stringify(query));
         return this.searchService.searchAll(query.q, query.limit, query.page, query.genre, query.year, query.sortBy);
     }
 
