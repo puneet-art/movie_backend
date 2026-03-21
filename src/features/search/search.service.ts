@@ -183,25 +183,23 @@ export class SearchService {
           query_by: 'title,genres,actors',
           filter_by: filterBy,
           sort_by: sort_by,
+          per_page: perPage,
+          page: currentPage,
         },
         {
           collection: 'actors',
           q: query,
           query_by: 'first_name,last_name,bio,location,films',
+          per_page: perPage,
+          page: currentPage,
         },
       ],
     };
 
-    const commonParams = {
-      per_page: perPage,
-      page: currentPage,
-    };
-
-    this.logger.log(`Typesense multiSearch: q="${query}", limit=${perPage}, page=${currentPage}, genre="${genre}", year=${year}`);
+    this.logger.log(`Typesense multiSearch: q="${query}", limit=${perPage}, page=${currentPage}, genre="${genre}", year="${year}"`);
 
     const result: any = await this.typesenseService.client.multiSearch.perform(
-      searchRequests,
-      commonParams,
+      searchRequests
     );
 
     const filmsResult = result.results[0];
