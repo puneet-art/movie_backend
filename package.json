@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:push": "prisma db push",
     "studio": "prisma studio",
-    "index": "ts-node src/scripts/index-data.ts"
+    "index": "ts-node src/scripts/index-data.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.1.0",
