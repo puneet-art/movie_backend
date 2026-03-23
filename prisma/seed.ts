@@ -34,18 +34,18 @@ async function main() {
 
     // Seeding Films
     await prisma.$executeRaw`
-        INSERT INTO "film" (title, description, release_year, language_id)
-        VALUES ('Forrest Gump', 'The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate and other historical events unfold from the perspective of an Alabama man with an IQ of 75.', 1994, 1)
+        INSERT INTO "film" (title, description, release_year, language_id, special_features, fulltext)
+        VALUES ('Forrest Gump', 'The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate and other historical events unfold from the perspective of an Alabama man with an IQ of 75.', 1994, 1, ARRAY[]::varchar[], to_tsvector(''))
     `;
 
     await prisma.$executeRaw`
-        INSERT INTO "film" (title, description, release_year, language_id)
-        VALUES ('Inception', 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.', 2010, 1)
+        INSERT INTO "film" (title, description, release_year, language_id, special_features, fulltext)
+        VALUES ('Inception', 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.', 2010, 1, ARRAY[]::varchar[], to_tsvector(''))
     `;
 
     await prisma.$executeRaw`
-        INSERT INTO "film" (title, description, release_year, language_id)
-        VALUES ('The Shawshank Redemption', 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.', 1994, 1)
+        INSERT INTO "film" (title, description, release_year, language_id, special_features, fulltext)
+        VALUES ('The Shawshank Redemption', 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.', 1994, 1, ARRAY[]::varchar[], to_tsvector(''))
     `;
 
     console.log(`Created Films: 3`);
